@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Strømfaktura – PDF-leser (importfix)</title>
+  <title>Strømfaktura – PDF-leser (GitHub Pages)</title>
   <script>
   window.__pdfjsReady = false;
   window.__pdfjsSource = '';
@@ -22,7 +22,7 @@
       const s = document.createElement('script');
       s.src = src;
       s.async = true;
-      s.onload = () => setTimeout(() => window.pdfjsLib ? resolve(true) : reject(new Error('Script lastet, men pdfjsLib mangler')), 75);
+      s.onload = () => setTimeout(() => window.pdfjsLib ? resolve(true) : reject(new Error('Script lastet, men pdfjsLib mangler')), 100);
       s.onerror = () => reject(new Error('Kunne ikke laste ' + src));
       document.head.appendChild(s);
     });
@@ -30,8 +30,9 @@
   async function loadPdfJs(){
     const candidates = [];
     try {
-      candidates.push(new URL('pdf.min.js', window.location.href).href);
-      candidates.push(new URL('./pdf.min.js', window.location.href).href);
+      const base = window.location.href.replace(/[^/]+$/, '');
+      candidates.push(base + 'pdf.min.js');
+      candidates.push(base + './pdf.min.js');
     } catch (e) {}
     candidates.push('pdf.min.js');
     candidates.push('./pdf.min.js');
@@ -95,7 +96,7 @@
     <div class="grid-hero">
       <div class="card"><div class="card-inner">
         <h1>Strømfaktura – PDF-leser</h1>
-        <p class="lead">Denne versjonen er justert for å løse importproblem fra lokal HTML-fil. Den bruker <strong>ingen PDF-worker</strong>, og leser filen direkte med <strong>FileReader</strong>, som ofte fungerer bedre fra <code>file://</code> i Edge/Chrome.</p>
+        <p class="lead">Denne versjonen er tilpasset <strong>GitHub Pages</strong> og vanlig webserver. Den prøver først å laste lokal <code>pdf.min.js</code> fra samme mappe, og deretter CDN. Hvis det fortsatt feiler, kan du velge bibliotekfil manuelt med knappen <strong>Velg PDF-bibliotek</strong>.</p>
         <div class="btns">
           <button class="b1" id="pickBtn">📄 Velg PDF</button>
           <button class="b2" id="pickLibBtn">🧩 Velg PDF-bibliotek</button>
@@ -104,7 +105,7 @@
           <button class="b2" id="demoBtn">🧪 Last demo-data</button>
           <button class="b4" id="clearBtn">🧹 Nullstill</button>
         </div>
-        <div class="notice" id="statusBox">Status: Klar. Denne versjonen prøver lokal <code>pdf.min.js</code> først, deretter CDN. Hvis det ikke virker, bruk knappen <strong>Velg PDF-bibliotek</strong> og velg riktig <code>pdf.min.js</code>-fil manuelt.</div>
+        <div class="notice" id="statusBox">Status: Klar. Last opp denne filen som <code>index.html</code> i GitHub sammen med <code>pdf.min.js</code> i samme mappe.</div>
       </div></div>
       <div class="card"><div class="card-inner">
         <div class="dropzone" id="dropzone">
@@ -199,7 +200,7 @@ function extractHeader(fullText){
 }
 
 async function readPdf(file){
-  if (!window.pdfjsLib) throw new Error('PDF.js ble ikke lastet. Bruk knappen «Velg PDF-bibliotek» og velg riktig pdf.min.js manuelt.');
+  if (!window.pdfjsLib) throw new Error('PDF.js ble ikke lastet. Last opp pdf.min.js i samme mappe som index.html på GitHub Pages, eller velg pdf.min.js manuelt.');
   const data = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(new Uint8Array(reader.result));
@@ -253,8 +254,8 @@ async function boot(){
     log('PDF.js lastet fra: ' + (window.__pdfjsSource || 'ukjent kilde'));
     setStatus('Klar. PDF-bibliotek lastet fra ' + (window.__pdfjsSource || 'ukjent kilde') + '.');
   } else {
-    log('PDF.js kunne ikke lastes automatisk. Bruk knappen Velg PDF-bibliotek.');
-    setStatus('PDF-bibliotek ikke lastet automatisk. Bruk knappen Velg PDF-bibliotek og velg pdf.min.js manuelt.');
+    log('PDF.js kunne ikke lastes automatisk. Last opp pdf.min.js sammen med index.html, eller bruk knappen Velg PDF-bibliotek.');
+    setStatus('PDF-bibliotek ikke lastet automatisk. Last opp pdf.min.js sammen med index.html, eller bruk knappen Velg PDF-bibliotek.');
   }
 }
 boot();
